@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync,rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { openStore } from './orders.mjs';
+const valid={service:'Instalação de TV',size:'51–65″',place:'Parede',name:'Teste técnico',phone:'(11) 99999-0000',city:'São Paulo',notes:'Teste automatizado',consent:true};
+test('salva pedido e mantém os dados após reabrir o banco',()=>{const dir=mkdtempSync(join(tmpdir(),'connecthd-test-'));const file=join(dir,'test.sqlite');let s=openStore(file);try{const result=s.create(valid,'persist-test-key-1234');assert.match(result.reference,/^CHD-\d{4}-[A-F0-9]+$/);s.close();s=openStore(file);assert.equal(s.list()[0].reference,result.reference);assert.equal(s.list()[0].phone,'11999990000')}finally{s.close();rmSync(dir,{recursive:true})}});
+test('retry idempotente não duplica pedidos e recusa conteúdo diferente',()=>{const s=openStore(':memory:');try{const a=s.create(valid,'idempotency-key-12345');const b=s.create(valid,'idempotency-key-12345');assert.equal(a.reference,b.reference);assert.equal(b.replayed,true);assert.equal(s.list().length,1);assert.throws(()=>s.create({...valid,name:'Outro nome'},'idempotency-key-12345'),/outros dados/)}finally{s.close()}});
+test('validação recusa telefone, serviço, consentimento e spam inválidos',()=>{const s=openStore(':memory:');try{for(const change of [{phone:'123'},{service:'inexistente'},{consent:false},{website:'spam'},{name:'a'},{city:'a'}])assert.throws(()=>s.create({...valid,...change},'validation-key-12345'));assert.equal(s.list().length,0)}finally{s.close()}});
