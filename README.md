@@ -1,6 +1,6 @@
 # ConnectHD — site completo
 
-Site institucional com React, TypeScript, Vite, Tailwind e Framer Motion. Visual editorial escuro, destaque em laranja, títulos grandes, animações de rolagem e cursor contextual em computador. Pedidos pelo site com banco SQLite e protocolo, além de WhatsApp no formato solicitado.
+Site institucional com React, TypeScript, Vite, Tailwind e Framer Motion. Visual editorial escuro, destaque em azul-claro, títulos grandes, animações de rolagem e cursor contextual em computador. Pedidos pelo site com banco SQLite e protocolo, além de WhatsApp no formato solicitado.
 
 ## Abrir e visualizar
 
